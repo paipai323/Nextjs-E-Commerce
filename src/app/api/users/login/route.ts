@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Client } from 'pg';
 import bcrypt from 'bcrypt';
-import { signJWT } from '@/lib/jwt';
+import { signJWT } from '@/lib/auth/jwt';
 
 export async function POST(req: NextRequest) {
   const { email, password } = await req.json();
