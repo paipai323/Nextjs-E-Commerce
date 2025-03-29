@@ -1,15 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { Client } from 'pg';
+import db from '@/lib/db';
 import bcrypt from 'bcrypt';
 import { signJWT } from '@/lib/auth/jwt';
 
 export async function POST(req: NextRequest) {
   const { email, password } = await req.json();
 
-  const client = new Client({ connectionString: process.env.DATABASE_URL });
-  await client.connect();
-
-  const result = await client.query('SELECT * FROM users WHERE email = $1', [email]);
+  const result = await db.query('SELECT * FROM users WHERE email = $1', [email]);
   const user = result.rows[0];
 
   if (!user) {
@@ -23,8 +20,6 @@ export async function POST(req: NextRequest) {
   }
 
   const token = signJWT({ userId: user.id, email: user.email });
-
-  await client.end();
 
   return NextResponse.json({ token });
 }

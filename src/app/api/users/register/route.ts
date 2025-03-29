@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { Client } from 'pg';
+import db from '@/lib/db';
 import bcrypt from 'bcrypt';
 
 export async function POST(req: NextRequest) {
@@ -9,13 +9,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ message: 'No Email or Password'}, {status: 400})
   }
 
-  const client = new Client({ connectionString: process.env.DATABASE_URL });
-  await client.connect();
-
   const hashedPassword = await bcrypt.hash(password, 10);
 
   try {
-    await client.query(
+    await db.query(
       'INSERT INTO users (email, password) VALUES ($1, $2)',
       [email, hashedPassword]
     );
@@ -27,8 +24,5 @@ export async function POST(req: NextRequest) {
   
     console.error('Unexpected error:', err); // log unexpected error for yourself
     return NextResponse.json({ error: 'Something went wrong' }, { status: 500 });
-  }
-   finally {
-    await client.end();
   }
 }
